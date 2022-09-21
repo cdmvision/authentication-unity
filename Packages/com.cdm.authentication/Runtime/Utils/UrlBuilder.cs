@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Web;
 
@@ -20,9 +21,13 @@ namespace Cdm.Authorization.Utils
             return new UrlBuilder(url);
         }
 
-        public UrlBuilder SetQueryParameter(string key, string value)
+        public UrlBuilder SetQueryParameters(Dictionary<string, string> parameters)
         {
-            _query.SetIfNotEmpty(key, value);
+            foreach (var p in parameters)
+            {
+                _query.Set(p.Key, p.Value);    
+            }
+
             return this;
         }
 

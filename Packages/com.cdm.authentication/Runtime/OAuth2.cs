@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security;
@@ -8,10 +7,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using Cdm.Authorization.AuthorizationCode;
 using Cdm.Authorization.Utils;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace Cdm.Authorization
@@ -84,58 +81,55 @@ namespace Cdm.Authorization
             // Generate new state.
             state = Guid.NewGuid().ToString("D");
 
-            var url = UrlBuilder.New(authorizationUrl)
-                .SetQueryParameter(AuthorizationRequest.ResponseType, "code")
-                .SetQueryParameter(AuthorizationRequest.ClientId, configuration.clientId)
-                .SetQueryParameter(AuthorizationRequest.ClientSecret, configuration.clientSecret)
-                .SetQueryParameter(AuthorizationRequest.RedirectUri, configuration.redirectUri)
-                .SetQueryParameter(AuthorizationRequest.Scope, configuration.scope)
-                .SetQueryParameter(AuthorizationRequest.State, state)
-                .ToString();
+            var parameters = JsonHelper.ToDictionary(new AuthorizationRequest()
+            {
+                responseType = "code",
+                clientId = configuration.clientId,
+                clientSecret = configuration.clientSecret,
+                redirectUri = configuration.redirectUri,
+                scope = configuration.scope,
+                state = state
+            });
             
+            var url = UrlBuilder.New(authorizationUrl).SetQueryParameters(parameters).ToString();
             return Task.FromResult(url);
         }
 
-        public virtual async Task<string> GetAccessTokenAsync(string authorizationResponse, 
+        public virtual async Task<string> GetAccessTokenAsync(string authorizationResponseString, 
             CancellationToken cancellationToken = default)
         {
-            var index = authorizationResponse.IndexOf("?", StringComparison.Ordinal);
+            var index = authorizationResponseString.IndexOf("?", StringComparison.Ordinal);
             if (index >= 0)
             {
-                authorizationResponse = authorizationResponse.Substring(index).Remove(0, 1);
+                authorizationResponseString = authorizationResponseString.Substring(index).Remove(0, 1);
             }
             
-            var query = HttpUtility.ParseQueryString(authorizationResponse);
+            var query = HttpUtility.ParseQueryString(authorizationResponseString);
 
             // Is there any error?
-            if (AuthorizationError.TryGetFromQuery(query, out var authorizationError))
+            if (JsonHelper.TryGetFromNameValueCollection<AuthorizationError>(query, out var authorizationError))
                 throw new AuthorizationException(authorizationError);
-            
-            // Validate state.
-            if (!string.IsNullOrEmpty(state))
-            {
-                if (state != query.Get(AuthorizationResponse.State))
-                    throw new SecurityException("State must be the same.");
-            }
 
-            var code = query.Get(AuthorizationResponse.Code);
-            if (string.IsNullOrEmpty(code))
-                throw new Exception("Authorization code does not exist.");
+            if (!JsonHelper.TryGetFromNameValueCollection<AuthorizationResponse>(query, out var authorizationResponse))
+                throw new Exception("Authorization code could not get.");
+
+            // Validate authorization response state.
+            if (!string.IsNullOrEmpty(state) && state != authorizationResponse.state)
+                throw new SecurityException($"Invalid state got: {authorizationResponse.state}");
 
             var authString = $"{configuration.clientId}:{configuration.clientSecret}";
             var base64AuthString = Convert.ToBase64String(Encoding.UTF8.GetBytes(authString));
             
-            var parameters = new Dictionary<string, string>();
-            parameters.Add(AccessTokenRequest.GrantType, "authorization_code");
-            parameters.Add(AccessTokenRequest.Code, code);
-            parameters.Add(AccessTokenRequest.ClientId, configuration.clientId);
-            parameters.Add(AccessTokenRequest.RedirectUri, configuration.redirectUri);
-
-            if (!string.IsNullOrEmpty(configuration.clientSecret))
+            var parameters = JsonHelper.ToDictionary(new AccessTokenRequest()
             {
-                parameters.Add(AccessTokenRequest.ClientSecret, configuration.clientSecret);    
-            }
-
+                code = authorizationResponse.code,
+                clientId = configuration.clientId,
+                clientSecret = configuration.clientSecret,
+                redirectUri = configuration.redirectUri
+            });
+            
+            Debug.Assert(parameters != null);
+            
             var accessTokenRequest = new HttpRequestMessage(HttpMethod.Post, accessTokenUrl);
             accessTokenRequest.Headers.Authorization = new AuthenticationHeaderValue("Basic", base64AuthString);
             accessTokenRequest.Content = new FormUrlEncodedContent(parameters);
