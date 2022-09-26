@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using AOT;
 
-#if true || UNITY_IOS && !UNITY_EDITOR
+#if UNITY_IOS && !UNITY_EDITOR
 using System.Runtime.InteropServices;
 #endif
 

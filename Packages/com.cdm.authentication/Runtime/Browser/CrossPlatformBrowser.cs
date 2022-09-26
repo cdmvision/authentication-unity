@@ -1,32 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Cdm.Authentication.Browser
 {
     public class CrossPlatformBrowser : IBrowser
     {
-        private readonly IBrowser _browser;
+        public readonly Dictionary<RuntimePlatform, IBrowser> _platformBrowsers = 
+            new Dictionary<RuntimePlatform, IBrowser>();
         
-        public CrossPlatformBrowser()
-        {
-#if UNITY_STANDALONE || UNITY_EDITOR
-            _browser = new StandaloneBrowser();
-#elif UNITY_IOS
-            //_browser = new ASWebAuthenticationSessionBrowser();
-            _browser = new WKWebViewAuthenticationSessionBrowser();
-#elif UNITY_ANDROID
-            // TODO:
-#endif
-        }
-        
+        public IDictionary<RuntimePlatform, IBrowser> platformBrowsers => _platformBrowsers;
+
         public async Task<BrowserResult> StartAsync(
             string loginUrl, string redirectUrl, CancellationToken cancellationToken = default)
         {
-            if (_browser == null)
-                throw new NotSupportedException("Platform browser does not supported.");
-            
-            return await _browser.StartAsync(loginUrl, redirectUrl, cancellationToken);
+            var browser = platformBrowsers.FirstOrDefault(x => x.Key == Application.platform).Value;
+            if (browser == null)
+                throw new NotSupportedException($"There is no browser found for '{Application.platform}' platform.");
+
+            return await browser.StartAsync(loginUrl, redirectUrl, cancellationToken);
         }
     }
 }

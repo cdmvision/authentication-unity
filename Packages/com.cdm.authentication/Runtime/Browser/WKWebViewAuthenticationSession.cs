@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using AOT;
 
-#if true || UNITY_IOS && !UNITY_EDITOR
+#if UNITY_IOS && !UNITY_EDITOR
 using System.Runtime.InteropServices;
 #endif
 
@@ -77,7 +77,6 @@ namespace Cdm.Authentication.Browser
         
         private static void Cdm_Auth_WKWebViewAuthenticationSession_Dispose(IntPtr session)
         {
-            throw new NotImplementedException(NotSupportedMsg);
         }
 #endif
 

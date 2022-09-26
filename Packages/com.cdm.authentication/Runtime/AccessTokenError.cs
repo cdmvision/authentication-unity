@@ -1,4 +1,4 @@
-﻿using System.Runtime.Serialization;
+using System.Runtime.Serialization;
 
 namespace Cdm.Authorization
 {
@@ -9,11 +9,7 @@ namespace Cdm.Authorization
     [DataContract]
     public class AccessTokenError
     {
-        public const string CodeKey = "error";
-        public const string DescriptionKey = "error_description";
-        public const string UriKey = "error_uri";
-        
-        [DataMember(IsRequired = true, Name = CodeKey)]
+        [DataMember(IsRequired = true, Name = "error")]
         public AccessTokenErrorCode code { get; set; }
 
         /// <summary>
@@ -21,14 +17,14 @@ namespace Cdm.Authorization
         /// text providing additional information, used to assist the client developer in understanding
         /// the error that occurred.
         /// </summary>
-        [DataMember(Name = DescriptionKey)]
+        [DataMember(Name = "error_description")]
         public string description { get; set; }
 
         /// <summary>
         /// OPTIONAL. A URI identifying a human-readable web page with information about the error, used to provide
         /// the client developer with additional information about the error.
         /// </summary>
-        [DataMember(Name = UriKey)]
+        [DataMember(Name = "error_uri")]
         public string uri { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace Cdm.Authorization
         public HttpStatusCode statusCode { get; }
         public AccessTokenError error { get; }
 
-        public AccessTokenException(AccessTokenError error, HttpStatusCode statusCode)
+        public AccessTokenException(AccessTokenError error, HttpStatusCode statusCode) : base(error.description)
         {
             this.error = error;
             this.statusCode = statusCode;

@@ -6,11 +6,20 @@ using UnityEngine;
 
 namespace Cdm.Authentication.Browser
 {
+    /// <summary>
+    /// OAuth 2.0 verification browser that runs a local server and waits for a call with
+    /// the authorization verification code.
+    /// </summary>
     public class StandaloneBrowser : IBrowser
     {
         private TaskCompletionSource<BrowserResult> _taskCompletionSource;
-        private HttpListener _httpListener;
-        
+
+        /// <summary>
+        /// Gets or sets the close page response. This HTML response is shown to the user after redirection is done.
+        /// </summary>
+        public string closePageResponse { get; set; } = 
+            "<html><body><b>DONE!</b><br>(You can close this tab/window now)</body></html>";
+
         public async Task<BrowserResult> StartAsync(
             string loginUrl, string redirectUrl, CancellationToken cancellationToken = default)
         {
@@ -21,12 +30,14 @@ namespace Cdm.Authentication.Browser
                 _taskCompletionSource?.TrySetCanceled();
             });
 
+            using var httpListener = new HttpListener();
+            
             try
             {
-                _httpListener = new HttpListener();
-                _httpListener.Prefixes.Add(redirectUrl);
-                _httpListener.Start();
-                _httpListener.BeginGetContext(IncomingHttpRequest, _httpListener);
+                
+                httpListener.Prefixes.Add(redirectUrl);
+                httpListener.Start();
+                httpListener.BeginGetContext(IncomingHttpRequest, httpListener);
                 
                 Application.OpenURL(loginUrl);
                 
@@ -34,8 +45,7 @@ namespace Cdm.Authentication.Browser
             }
             finally
             {
-                _httpListener?.Stop();
-                _httpListener = null;
+                httpListener.Stop();
             }
         }
 
@@ -45,32 +55,18 @@ namespace Cdm.Authentication.Browser
             var httpContext = httpListener.EndGetContext(result);
             var httpRequest = httpContext.Request;
             
-#if DEBUG
-            Debug.Log($"URL: {httpRequest.Url.OriginalString}");
-            Debug.Log($"Raw URL: {httpRequest.RawUrl}");
-            Debug.Log($"Query: {httpRequest.QueryString}");
-
-            foreach (string q in httpRequest.QueryString)
-            {
-                Debug.Log($"{q}: {httpRequest.QueryString.Get(q)}");
-            }
-            //Debug.Log($"Incoming http request url: {httpRequest.}");
-#endif
-            // TODO: compare with initial redirect url!
-            
-            // build a response to send an "ok" back to the browser for the user to see
+            // Build a response to send an "ok" back to the browser for the user to see.
             var httpResponse = httpContext.Response;
-            var responseString = "<html><body><b>DONE!</b><br>(You can close this tab/window now)</body></html>";
-            var buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
+            var buffer = System.Text.Encoding.UTF8.GetBytes(closePageResponse);
 
-            // send the output to the client browser
+            // Send the output to the client browser.
             httpResponse.ContentLength64 = buffer.Length;
             var output = httpResponse.OutputStream;
             output.Write(buffer, 0, buffer.Length);
             output.Close();
 
             _taskCompletionSource.SetResult(
-                new BrowserResult(BrowserStatus.Success, httpRequest.RawUrl));
+                new BrowserResult(BrowserStatus.Success, httpRequest.Url.ToString()));
         }
     }
 }

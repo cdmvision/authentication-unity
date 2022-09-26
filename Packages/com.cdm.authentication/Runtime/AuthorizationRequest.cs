@@ -19,12 +19,6 @@ namespace Cdm.Authorization
         public string clientId { get; set; }
         
         /// <summary>
-        /// OPTIONAL. The client secret.
-        /// </summary>
-        [DataMember(Name = "client_secret")]
-        public string clientSecret { get; set; }
-        
-        /// <summary>
         /// OPTIONAL. The redirect URI registered by the client as described in
         /// <a href="https://www.rfc-editor.org/rfc/rfc6749#section-3.1.2">Section 3.1.2</a>.
         /// </summary>
