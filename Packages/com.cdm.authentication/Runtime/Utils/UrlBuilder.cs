@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Web;
 
-namespace Cdm.Authorization.Utils
+namespace Cdm.Authentication.Utils
 {
     public class UrlBuilder
     {
@@ -35,13 +35,6 @@ namespace Cdm.Authorization.Utils
         {
             _uriBuilder.Query = _query.ToString();
             return _uriBuilder.Uri.ToString();
-        }
-        
-        public static string Build(string url, NameValueCollection query)
-        {
-            var uriBuilder = new UriBuilder(url);
-            uriBuilder.Query = query.ToString();
-            return uriBuilder.Uri.ToString();
         }
     }
 }

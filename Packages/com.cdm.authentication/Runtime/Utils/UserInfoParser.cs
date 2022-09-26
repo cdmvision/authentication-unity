@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace Cdm.Authorization.Utils
+namespace Cdm.Authentication.Utils
 {
     public static class UserInfoParser
     {

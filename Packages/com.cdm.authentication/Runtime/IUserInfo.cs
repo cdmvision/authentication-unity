@@ -1,4 +1,4 @@
-﻿namespace Cdm.Authorization
+﻿namespace Cdm.Authentication
 {
     public interface IUserInfo
     {
