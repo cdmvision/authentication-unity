@@ -17,8 +17,9 @@ namespace Cdm.Authorization.Clients
 
         public async Task<IUserInfo> GetUserInfoAsync(CancellationToken cancellationToken = default)
         {
+            var authenticationHeader = accessTokenResponse.GetAuthenticationHeader();
             return await UserInfoParser.GetUserInfoAsync<GitHubUserInfo>(
-                    httpClient, userInfoUrl, GetAuthenticationHeader(), cancellationToken);
+                    httpClient, userInfoUrl, authenticationHeader, cancellationToken);
         }
 
         [DataContract]

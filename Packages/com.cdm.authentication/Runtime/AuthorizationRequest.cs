@@ -2,41 +2,43 @@
 
 namespace Cdm.Authorization
 {
+    /// <summary>
+    /// OAuth 2.0 request for an access token using an authorization code as specified in
+    /// http://tools.ietf.org/html/rfc6749#section-4.1.1.
+    /// </summary>
     [DataContract]
     public class AuthorizationRequest
     {
         /// <summary>
-        /// REQUIRED. Value MUST be set to "code".
+        /// Gets  the response type which is the 'code'.
         /// </summary>
-        [DataMember(IsRequired = true, Name = "response_type")]
-        public string responseType { get; set; }
+        [DataMember(Name = "response_type", IsRequired = true)]
+        public string responseType => "code";
         
         /// <summary>
-        /// REQUIRED. The client identifier as described in
-        /// <a href="https://www.rfc-editor.org/rfc/rfc6749#section-2.2">Section 2.2</a>.
+        /// Gets or sets the client identifier as specified in https://www.rfc-editor.org/rfc/rfc6749#section-2.2.
         /// </summary>
-        [DataMember(IsRequired = true, Name = "client_id")]
+        [DataMember(Name = "client_id", IsRequired = true)]
         public string clientId { get; set; }
         
         /// <summary>
-        /// OPTIONAL. The redirect URI registered by the client as described in
-        /// <a href="https://www.rfc-editor.org/rfc/rfc6749#section-3.1.2">Section 3.1.2</a>.
+        /// Gets or sets the URI that the authorization server directs the resource owner's user-agent back to the
+        /// client after a successful authorization grant, as specified in
+        /// http://tools.ietf.org/html/rfc6749#section-3.1.2 or <c>null</c> for none.
         /// </summary>
         [DataMember(Name = "redirect_uri")]
         public string redirectUri { get; set; }
         
         /// <summary>
-        /// OPTIONAL. The scope of the access request as described by
-        /// <a href="https://www.rfc-editor.org/rfc/rfc6749#section-3.3">Section 3.3</a>.
+        /// Gets or sets space-separated list of scopes, as specified in
+        /// http://tools.ietf.org/html/rfc6749#section-3.3 or <c>null</c> for none.
         /// </summary>
         [DataMember(Name = "scope")]
         public string scope { get; set; }
 
         /// <summary>
-        /// RECOMMENDED. An opaque value used by the client to maintain state between the request and callback.
-        /// The authorization server includes this value when redirecting the user-agent back to the client.
-        /// The parameter SHOULD be used for preventing cross-site request forgery as described in
-        /// <a href="https://www.rfc-editor.org/rfc/rfc6749#section-10.12">Section 10.12</a>.
+        /// Gets or sets the state (an opaque value used by the client to maintain state between the request and
+        /// callback, as mentioned in http://tools.ietf.org/html/rfc6749#section-3.1.2.2 or <c>null</c> for none.
         /// </summary>
         [DataMember(Name = "state")]
         public string state { get; set; }

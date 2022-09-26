@@ -2,6 +2,10 @@
 
 namespace Cdm.Authorization
 {
+    /// <summary>
+    /// OAuth 2.0 request to refresh an access token using a refresh token as specified in
+    /// http://tools.ietf.org/html/rfc6749#section-6.
+    /// </summary>
     [DataContract]
     public class RefreshTokenRequest
     {
