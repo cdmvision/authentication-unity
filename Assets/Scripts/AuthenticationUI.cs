@@ -1,13 +1,20 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections;
+using System.Threading;
 using Cdm.Authentication.Browser;
 using Cdm.Authentication.Clients;
 using Cdm.Authentication.OAuth2;
 using Newtonsoft.Json;
+using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Button = UnityEngine.UI.Button;
 
-public class AuthenticationUI : MonoBehaviour
+public class AuthenticationUI : UIBehaviour
 {
+    public ScrollRect scrollView;
+    public TMP_Text statusText;
     public Button authenticateButton;
     public Button refreshTokenButton;
     public Button userInfoButton;
@@ -15,8 +22,13 @@ public class AuthenticationUI : MonoBehaviour
     private AuthenticationSession _authenticationSession;
     private CancellationTokenSource _cancellationTokenSource;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
+        statusText.text = "";
+        Application.logMessageReceived += OnLogMessageReceived;
+
         var configurationText = Resources.Load<TextAsset>("Configuration");
         if (configurationText == null)
         {
@@ -41,6 +53,41 @@ public class AuthenticationUI : MonoBehaviour
         authenticateButton.onClick.AddListener(AuthenticateAsync);
         refreshTokenButton.onClick.AddListener(RefreshTokenAsync);
         userInfoButton.onClick.AddListener(GetUserInfoAsync);
+    }
+    
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+
+        Application.logMessageReceived -= OnLogMessageReceived;
+
+        _cancellationTokenSource?.Cancel();
+        _authenticationSession?.Dispose();
+    }
+
+    private IEnumerator ScrollToEnd()
+    {
+        yield return new WaitForEndOfFrame();
+        scrollView.normalizedPosition = Vector3.zero;
+    }
+
+    private void OnLogMessageReceived(string condition, string stacktrace, LogType type)
+    {
+        switch (type)
+        {
+            case LogType.Warning:
+                condition = $"<color=yellow>{condition}</color>";
+                break;
+            case LogType.Error:
+            case LogType.Assert:
+            case LogType.Exception:
+                condition = $"<color=red>{condition}</color>";
+                break;
+        }
+
+        statusText.text += $"{condition}\n";
+
+        StartCoroutine(ScrollToEnd());
     }
 
     private async void AuthenticateAsync()
@@ -75,13 +122,8 @@ public class AuthenticationUI : MonoBehaviour
             if (_authenticationSession.SupportsUserInfo())
             {
                 var userInfo = await _authenticationSession.GetUserInfoAsync(_cancellationTokenSource.Token);
+                Debug.Log($"User id: {userInfo.id}, name:{userInfo.name}, email: {userInfo.email}");
             }
         }
-    }
-
-    private void OnDestroy()
-    {
-        _cancellationTokenSource?.Cancel();
-        _authenticationSession?.Dispose();
     }
 }

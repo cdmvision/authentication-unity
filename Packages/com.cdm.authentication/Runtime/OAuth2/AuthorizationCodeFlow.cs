@@ -173,7 +173,11 @@ namespace Cdm.Authentication.OAuth2
         public async Task<AccessTokenResponse> RefreshTokenAsync(CancellationToken cancellationToken = default)
         {
             if (accessTokenResponse == null)
-                throw new Exception("There is not authorization!");
+                throw new AccessTokenException(new AccessTokenError()
+                {
+                    code = AccessTokenErrorCode.InvalidGrant,
+                    description = "Authentication required."
+                }, null);
 
             return await RefreshTokenAsync(accessTokenResponse.refreshToken, cancellationToken);
         }

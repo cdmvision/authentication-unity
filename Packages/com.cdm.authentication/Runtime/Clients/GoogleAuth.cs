@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Cdm.Authentication.OAuth2;
@@ -18,6 +19,13 @@ namespace Cdm.Authentication.Clients
 
         public async Task<IUserInfo> GetUserInfoAsync(CancellationToken cancellationToken = default)
         {
+            if (accessTokenResponse == null)
+                throw new AccessTokenException(new AccessTokenError()
+                {
+                    code = AccessTokenErrorCode.InvalidGrant,
+                    description = "Authentication required."
+                }, null);
+            
             var authenticationHeader = accessTokenResponse.GetAuthenticationHeader();
             return await UserInfoParser.GetUserInfoAsync<GoogleUserInfo>(
                 httpClient, userInfoUrl, authenticationHeader, cancellationToken);

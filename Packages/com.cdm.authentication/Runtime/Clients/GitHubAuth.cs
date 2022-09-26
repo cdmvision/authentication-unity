@@ -18,6 +18,13 @@ namespace Cdm.Authentication.Clients
 
         public async Task<IUserInfo> GetUserInfoAsync(CancellationToken cancellationToken = default)
         {
+            if (accessTokenResponse == null)
+                throw new AccessTokenException(new AccessTokenError()
+                {
+                    code = AccessTokenErrorCode.InvalidGrant,
+                    description = "Authentication required."
+                }, null);
+            
             var authenticationHeader = accessTokenResponse.GetAuthenticationHeader();
             return await UserInfoParser.GetUserInfoAsync<GitHubUserInfo>(
                     httpClient, userInfoUrl, authenticationHeader, cancellationToken);
