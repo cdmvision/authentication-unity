@@ -47,7 +47,7 @@ PluginImporter:
     second:
       enabled: 0
       settings:
-        CPU: x86_64
+        CPU: AnyCPU
   - first:
       Standalone: OSXUniversal
     second:
@@ -74,7 +74,7 @@ PluginImporter:
         AddToEmbeddedBinaries: false
         CPU: AnyCPU
         CompileFlags: 
-        FrameworkDependencies: AuthenticationServices;
+        FrameworkDependencies: WebKit;
   - first:
       tvOS: tvOS
     second:
