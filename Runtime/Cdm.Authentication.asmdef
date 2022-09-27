@@ -1,0 +1,16 @@
+{
+    "name": "Cdm.Authentication",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b0cab6f8881a0f744a07ddbf40c42917"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
