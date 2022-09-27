@@ -18,6 +18,7 @@ public class AuthenticationUI : UIBehaviour
     public Button authenticateButton;
     public Button refreshTokenButton;
     public Button userInfoButton;
+    public TMP_InputField loginTimeoutInput;
 
     private AuthenticationSession _authenticationSession;
     private CancellationTokenSource _cancellationTokenSource;
@@ -25,13 +26,13 @@ public class AuthenticationUI : UIBehaviour
     protected override void Awake()
     {
         base.Awake();
-        
+
         statusText.text = "";
         Application.logMessageReceived += OnLogMessageReceived;
 
         if (!AuthConfigurationLoader.TryLoad(out var configuration))
             return;
-        
+
         var browser = new CrossPlatformBrowser();
         browser.platformBrowsers.Add(RuntimePlatform.WindowsEditor, new StandaloneBrowser());
         browser.platformBrowsers.Add(RuntimePlatform.WindowsPlayer, new StandaloneBrowser());
@@ -47,7 +48,7 @@ public class AuthenticationUI : UIBehaviour
         refreshTokenButton.onClick.AddListener(RefreshTokenAsync);
         userInfoButton.onClick.AddListener(GetUserInfoAsync);
     }
-    
+
     protected override void OnDestroy()
     {
         base.OnDestroy();
@@ -90,9 +91,15 @@ public class AuthenticationUI : UIBehaviour
             _cancellationTokenSource?.Dispose();
             _cancellationTokenSource = new CancellationTokenSource();
 
-            var accessTokenResponse = await _authenticationSession.AuthenticateAsync(_cancellationTokenSource.Token);
+            if (double.TryParse(loginTimeoutInput.text, out var value))
+            {
+                _authenticationSession.loginTimeout = TimeSpan.FromSeconds(value);
+            }
             
-            Debug.Log($"Access token response:\n {JsonConvert.SerializeObject(accessTokenResponse, Formatting.Indented)}");
+            var accessTokenResponse = await _authenticationSession.AuthenticateAsync(_cancellationTokenSource.Token);
+
+            Debug.Log(
+                $"Access token response:\n {JsonConvert.SerializeObject(accessTokenResponse, Formatting.Indented)}");
         }
     }
 
@@ -104,8 +111,9 @@ public class AuthenticationUI : UIBehaviour
             _cancellationTokenSource = new CancellationTokenSource();
 
             var accessTokenResponse = await _authenticationSession.RefreshTokenAsync(_cancellationTokenSource.Token);
-            
-            Debug.Log($"Refresh token response:\n {JsonConvert.SerializeObject(accessTokenResponse, Formatting.Indented)}");
+
+            Debug.Log(
+                $"Refresh token response:\n {JsonConvert.SerializeObject(accessTokenResponse, Formatting.Indented)}");
         }
     }
 
