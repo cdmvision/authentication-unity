@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Cdm.Authentication.OAuth2;
@@ -30,27 +29,27 @@ namespace Cdm.Authentication.Clients
             return await UserInfoParser.GetUserInfoAsync<GoogleUserInfo>(
                 httpClient, userInfoUrl, authenticationHeader, cancellationToken);
         }
+    }
+    
+    [DataContract]
+    public class GoogleUserInfo : IUserInfo
+    {
+        [DataMember(Name = "id", IsRequired = true)]
+        public string id { get; set; }
 
-        [DataContract]
-        public class GoogleUserInfo : IUserInfo
-        {
-            [DataMember(Name = "id", IsRequired = true)]
-            public string id { get; set; }
+        [DataMember(Name = "name")] 
+        public string name { get; set; }
 
-            [DataMember(Name = "name")] 
-            public string name { get; set; }
+        [DataMember(Name = "given_name")] 
+        public string givenName { get; set; }
 
-            [DataMember(Name = "given_name")] 
-            public string givenName { get; set; }
+        [DataMember(Name = "family_name")] 
+        public string familyName { get; set; }
 
-            [DataMember(Name = "family_name")] 
-            public string familyName { get; set; }
+        [DataMember(Name = "email")] 
+        public string email { get; set; }
 
-            [DataMember(Name = "email")] 
-            public string email { get; set; }
-
-            [DataMember(Name = "picture")] 
-            public string picture { get; set; }
-        }
+        [DataMember(Name = "picture")] 
+        public string picture { get; set; }
     }
 }

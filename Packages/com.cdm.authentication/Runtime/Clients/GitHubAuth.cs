@@ -29,23 +29,23 @@ namespace Cdm.Authentication.Clients
             return await UserInfoParser.GetUserInfoAsync<GitHubUserInfo>(
                     httpClient, userInfoUrl, authenticationHeader, cancellationToken);
         }
+    }
+    
+    [DataContract]
+    public class GitHubUserInfo : IUserInfo
+    {
+        [DataMember(Name = "id", IsRequired = true)]
+        public string id { get; set; }
 
-        [DataContract]
-        public class GitHubUserInfo : IUserInfo
-        {
-            [DataMember(Name = "id", IsRequired = true)]
-            public string id { get; set; }
+        [DataMember(Name = "name")] 
+        public string name { get; set; }
 
-            [DataMember(Name = "name")] 
-            public string name { get; set; }
+        [DataMember(Name = "email")] 
+        public string email { get; set; }
 
-            [DataMember(Name = "email")] 
-            public string email { get; set; }
+        [DataMember(Name = "avatar_url")] 
+        public string avatarUrl { get; set; }
 
-            [DataMember(Name = "avatar_url")] 
-            public string avatarUrl { get; set; }
-
-            public string picture => avatarUrl;
-        }
+        public string picture => avatarUrl;
     }
 }
