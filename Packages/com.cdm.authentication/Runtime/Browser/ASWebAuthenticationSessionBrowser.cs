@@ -7,6 +7,15 @@ namespace Cdm.Authentication.Browser
     public class ASWebAuthenticationSessionBrowser : IBrowser
     {
         private TaskCompletionSource<BrowserResult> _taskCompletionSource;
+
+        /// <summary>
+        /// Indicates whether the session should ask the browser for a private authentication
+        /// session.
+        /// </summary>
+        /// <remarks>
+        /// Set this property before you call <see cref="StartAsync"/>. Otherwise it has no effect.
+        /// </remarks>
+        public bool prefersEphemeralWebBrowserSession { get; set; } = false;
         
         public async Task<BrowserResult> StartAsync(
             string loginUrl, string redirectUrl, CancellationToken cancellationToken = default)
@@ -24,7 +33,7 @@ namespace Cdm.Authentication.Browser
             
             using var authenticationSession =
                 new ASWebAuthenticationSession(loginUrl, redirectUrl, AuthenticationSessionCompletionHandler);
-            authenticationSession.prefersEphemeralWebBrowserSession = true;
+            authenticationSession.prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession;
             
             cancellationToken.Register(() =>
             {
