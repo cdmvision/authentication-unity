@@ -25,26 +25,19 @@ public class AuthenticationUI : UIBehaviour
     protected override void Awake()
     {
         base.Awake();
-
+        
         statusText.text = "";
         Application.logMessageReceived += OnLogMessageReceived;
 
-        var configurationText = Resources.Load<TextAsset>("Configuration");
-        if (configurationText == null)
-        {
-            Debug.LogError("Auth client configuration could not found at Resources/Configuration.json.");
+        if (!AuthConfigurationLoader.TryLoad(out var configuration))
             return;
-        }
-
+        
         var browser = new CrossPlatformBrowser();
         browser.platformBrowsers.Add(RuntimePlatform.WindowsEditor, new StandaloneBrowser());
         browser.platformBrowsers.Add(RuntimePlatform.WindowsPlayer, new StandaloneBrowser());
         browser.platformBrowsers.Add(RuntimePlatform.OSXEditor, new StandaloneBrowser());
         browser.platformBrowsers.Add(RuntimePlatform.OSXPlayer, new StandaloneBrowser());
         browser.platformBrowsers.Add(RuntimePlatform.IPhonePlayer, new ASWebAuthenticationSessionBrowser());
-
-        var configuration =
-            JsonConvert.DeserializeObject<AuthorizationCodeFlow.Configuration>(configurationText.text);
 
         var auth = new GoogleAuth(configuration);
 
