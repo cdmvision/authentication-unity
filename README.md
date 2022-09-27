@@ -4,6 +4,7 @@
 - Built-in clients
   - GitHub
   - Google
+  - Facebook
 - Built-in browser support
   - Standalone as local server (Windows, macOS and Linux)
   - ASWebAuthenticationSession (iOS) (https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession)
