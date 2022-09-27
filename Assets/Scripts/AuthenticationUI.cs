@@ -20,6 +20,11 @@ public class AuthenticationUI : UIBehaviour
     public Button userInfoButton;
     public TMP_InputField loginTimeoutInput;
 
+    public GameObject iosBrowsers;
+    public Toggle asWebAuthenticationSessionBrowserToggle;
+    public Toggle wkWebViewAuthenticationSessionBrowserToggle;
+
+    private CrossPlatformBrowser _crossPlatformBrowser;
     private AuthenticationSession _authenticationSession;
     private CancellationTokenSource _cancellationTokenSource;
 
@@ -33,16 +38,18 @@ public class AuthenticationUI : UIBehaviour
         if (!AuthConfigurationLoader.TryLoad(out var configuration))
             return;
 
-        var browser = new CrossPlatformBrowser();
-        browser.platformBrowsers.Add(RuntimePlatform.WindowsEditor, new StandaloneBrowser());
-        browser.platformBrowsers.Add(RuntimePlatform.WindowsPlayer, new StandaloneBrowser());
-        browser.platformBrowsers.Add(RuntimePlatform.OSXEditor, new StandaloneBrowser());
-        browser.platformBrowsers.Add(RuntimePlatform.OSXPlayer, new StandaloneBrowser());
-        browser.platformBrowsers.Add(RuntimePlatform.IPhonePlayer, new ASWebAuthenticationSessionBrowser());
+        iosBrowsers.SetActive(Application.platform == RuntimePlatform.IPhonePlayer);
+        
+        _crossPlatformBrowser = new CrossPlatformBrowser();
+        _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.WindowsEditor, new StandaloneBrowser());
+        _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.WindowsPlayer, new StandaloneBrowser());
+        _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.OSXEditor, new StandaloneBrowser());
+        _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.OSXPlayer, new StandaloneBrowser());
+        _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.IPhonePlayer, new ASWebAuthenticationSessionBrowser());
 
         var auth = new GoogleAuth(configuration);
 
-        _authenticationSession = new AuthenticationSession(auth, browser);
+        _authenticationSession = new AuthenticationSession(auth, _crossPlatformBrowser);
 
         authenticateButton.onClick.AddListener(AuthenticateAsync);
         refreshTokenButton.onClick.AddListener(RefreshTokenAsync);
@@ -90,6 +97,18 @@ public class AuthenticationUI : UIBehaviour
         {
             _cancellationTokenSource?.Dispose();
             _cancellationTokenSource = new CancellationTokenSource();
+
+            _crossPlatformBrowser.platformBrowsers.Remove(RuntimePlatform.IPhonePlayer);
+            if (asWebAuthenticationSessionBrowserToggle.isOn)
+            {
+                _crossPlatformBrowser.platformBrowsers.Add(
+                    RuntimePlatform.IPhonePlayer, new ASWebAuthenticationSessionBrowser());
+            }
+            else if (wkWebViewAuthenticationSessionBrowserToggle.isOn)
+            {
+                _crossPlatformBrowser.platformBrowsers.Add(
+                        RuntimePlatform.IPhonePlayer, new WKWebViewAuthenticationSessionBrowser());
+            }
 
             if (double.TryParse(loginTimeoutInput.text, out var value))
             {
