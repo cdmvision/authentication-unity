@@ -90,7 +90,9 @@ public class AuthenticationUI : UIBehaviour
             _cancellationTokenSource?.Dispose();
             _cancellationTokenSource = new CancellationTokenSource();
 
-            await _authenticationSession.AuthenticateAsync(_cancellationTokenSource.Token);
+            var accessTokenResponse = await _authenticationSession.AuthenticateAsync(_cancellationTokenSource.Token);
+            
+            Debug.Log($"Access token response:\n {JsonConvert.SerializeObject(accessTokenResponse, Formatting.Indented)}");
         }
     }
 
@@ -101,7 +103,9 @@ public class AuthenticationUI : UIBehaviour
             _cancellationTokenSource?.Dispose();
             _cancellationTokenSource = new CancellationTokenSource();
 
-            await _authenticationSession.RefreshTokenAsync(_cancellationTokenSource.Token);
+            var accessTokenResponse = await _authenticationSession.RefreshTokenAsync(_cancellationTokenSource.Token);
+            
+            Debug.Log($"Refresh token response:\n {JsonConvert.SerializeObject(accessTokenResponse, Formatting.Indented)}");
         }
     }
 
