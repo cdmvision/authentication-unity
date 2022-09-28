@@ -214,7 +214,7 @@ namespace Cdm.Authentication.OAuth2
                 await GetAccessTokenInternalAsync(new FormUrlEncodedContent(parameters), cancellationToken);
             if (!tokenResponse.HasRefreshToken())
             {
-                tokenResponse.refreshToken = accessTokenResponse?.refreshToken;
+                tokenResponse.refreshToken = refreshToken;
             }
 
             accessTokenResponse = tokenResponse;

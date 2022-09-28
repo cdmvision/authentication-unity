@@ -11,5 +11,5 @@
   - WKWebView (iOS) (https://developer.apple.com/documentation/webkit/wkwebview)
 
 ## Install via Unity Package Manager:
-* Add `"com.cdm.authentication": "https://github.com/cdmvision/authentication-unity.git#1.0.0"` to your project's package manifest file in dependencies section.
-* Or, `Package Manager > Add package from git URL...` and paste this URL: `https://github.com/cdmvision/authentication-unity.git#1.0.0`
+* Add `"com.cdm.authentication": "https://github.com/cdmvision/authentication-unity.git#1.0.2"` to your project's package manifest file in dependencies section.
+* Or, `Package Manager > Add package from git URL...` and paste this URL: `https://github.com/cdmvision/authentication-unity.git#1.0.2`
