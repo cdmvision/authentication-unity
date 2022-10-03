@@ -29,7 +29,7 @@ namespace Cdm.Authentication.Mocking
             set => _serverUrl = value;
         }
 
-        [Header("Response")]
+        [Header("Authorization Code Response")]
         [SerializeField]
         private bool _authorizationCodeErrorEnabled;
 
@@ -48,10 +48,11 @@ namespace Cdm.Authentication.Mocking
             set => _authorizationCodeError = value;
         }
         
+        [Space]
         [SerializeField]
-        private List<MockServerAccessTokenResponse> _responses = new List<MockServerAccessTokenResponse>();
+        private List<MockServerAccessTokenResponse> _accessTokenResponses = new List<MockServerAccessTokenResponse>();
 
-        public IList<MockServerAccessTokenResponse> responses => _responses;
+        public IList<MockServerAccessTokenResponse> accessTokenResponses => _accessTokenResponses;
 
         private const string LoginPage = 
             "<!DOCTYPE>" +
@@ -194,7 +195,7 @@ namespace Cdm.Authentication.Mocking
             Dictionary<string, string> responseQuery;
             
             var username = query[UsernameKey];
-            _accessTokenResponse = _responses.FirstOrDefault(x => x.username == username);
+            _accessTokenResponse = _accessTokenResponses.FirstOrDefault(x => x.username == username);
             if (_accessTokenResponse != null)
             {
                 _authorizationCode = Guid.NewGuid().ToString("D");
