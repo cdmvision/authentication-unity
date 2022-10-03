@@ -41,7 +41,7 @@ namespace Cdm.Authentication.OAuth2
         /// </summary>
         /// <param name="cancellationToken">Cancellation token to cancel operation.</param>
         /// <exception cref="AuthorizationCodeRequestException"></exception>
-        /// <exception cref="AccessTokenException"></exception>
+        /// <exception cref="AccessTokenRequestException"></exception>
         /// <exception cref="AuthenticationException"></exception>
         public async Task<AccessTokenResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
         {

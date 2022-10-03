@@ -47,7 +47,7 @@ public class AuthenticationUI : UIBehaviour
         _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.OSXPlayer, new StandaloneBrowser());
         _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.IPhonePlayer, new ASWebAuthenticationSessionBrowser());
 
-        var auth = new GoogleAuth(configuration);
+        var auth = new MockServerAuth(configuration, "http://localhost:8001");
 
         _authenticationSession = new AuthenticationSession(auth, _crossPlatformBrowser);
 
@@ -114,11 +114,29 @@ public class AuthenticationUI : UIBehaviour
             {
                 _authenticationSession.loginTimeout = TimeSpan.FromSeconds(value);
             }
-            
-            var accessTokenResponse = await _authenticationSession.AuthenticateAsync(_cancellationTokenSource.Token);
 
-            Debug.Log(
-                $"Access token response:\n {JsonConvert.SerializeObject(accessTokenResponse, Formatting.Indented)}");
+            try
+            {
+                var accessTokenResponse =
+                    await _authenticationSession.AuthenticateAsync(_cancellationTokenSource.Token);
+
+                Debug.Log(
+                    $"Access token response:\n {JsonConvert.SerializeObject(accessTokenResponse, Formatting.Indented)}");
+            }
+            catch (AuthorizationCodeRequestException ex)
+            {
+                Debug.LogError($"{nameof(AuthorizationCodeRequestException)} " +
+                               $"error: {ex.error.code}, description: {ex.error.description}, uri: {ex.error.uri}");
+            }
+            catch (AccessTokenRequestException ex)
+            {
+                Debug.LogError($"{nameof(AccessTokenRequestException)} " +
+                               $"error: {ex.error.code}, description: {ex.error.description}, uri: {ex.error.uri}");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
         }
     }
 
@@ -129,10 +147,22 @@ public class AuthenticationUI : UIBehaviour
             _cancellationTokenSource?.Dispose();
             _cancellationTokenSource = new CancellationTokenSource();
 
-            var accessTokenResponse = await _authenticationSession.RefreshTokenAsync(_cancellationTokenSource.Token);
+            try
+            {
+                var accessTokenResponse = await _authenticationSession.RefreshTokenAsync(_cancellationTokenSource.Token);
 
-            Debug.Log(
-                $"Refresh token response:\n {JsonConvert.SerializeObject(accessTokenResponse, Formatting.Indented)}");
+                Debug.Log(
+                    $"Refresh token response:\n {JsonConvert.SerializeObject(accessTokenResponse, Formatting.Indented)}");
+            }
+            catch (AccessTokenRequestException ex)
+            {
+                Debug.LogError($"{nameof(AccessTokenRequestException)} " +
+                               $"error: {ex.error.code}, description: {ex.error.description}, uri: {ex.error.uri}");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
         }
     }
 

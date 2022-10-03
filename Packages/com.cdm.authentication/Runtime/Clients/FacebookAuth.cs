@@ -19,9 +19,9 @@ namespace Cdm.Authentication.Clients
         public async Task<IUserInfo> GetUserInfoAsync(CancellationToken cancellationToken = default)
         {
             if (accessTokenResponse == null)
-                throw new AccessTokenException(new AccessTokenError()
+                throw new AccessTokenRequestException(new AccessTokenRequestError()
                 {
-                    code = AccessTokenErrorCode.InvalidGrant,
+                    code = AccessTokenRequestErrorCode.InvalidGrant,
                     description = "Authentication required."
                 }, null);
             

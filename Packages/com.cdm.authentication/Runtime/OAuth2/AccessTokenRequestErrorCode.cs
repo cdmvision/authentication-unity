@@ -1,4 +1,6 @@
 ﻿using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Cdm.Authentication.OAuth2
 {
@@ -6,8 +8,9 @@ namespace Cdm.Authentication.OAuth2
     /// The authorization server responds with an HTTP 400 (Bad Request) status code (unless specified otherwise) and
     /// includes the following parameters with the response.
     /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     [DataContract]
-    public enum AccessTokenErrorCode
+    public enum AccessTokenRequestErrorCode
     {
         /// <summary>
         /// The request is missing a required parameter, includes an unsupported parameter value

@@ -113,7 +113,7 @@ namespace Cdm.Authentication.OAuth2
         /// <exception cref="AuthorizationCodeRequestException"></exception>
         /// <exception cref="Exception"></exception>
         /// <exception cref="SecurityException"></exception>
-        /// <exception cref="AccessTokenException"></exception>
+        /// <exception cref="AccessTokenRequestException"></exception>
         public virtual async Task<AccessTokenResponse> ExchangeCodeForAccessTokenAsync(string redirectUrl,
             CancellationToken cancellationToken = default)
         {
@@ -152,7 +152,7 @@ namespace Cdm.Authentication.OAuth2
         /// if available. 
         /// </summary>
         /// <param name="cancellationToken">Cancellation token to cancel operation.</param>
-        /// <exception cref="AccessTokenException">If access token cannot be granted.</exception>
+        /// <exception cref="AccessTokenRequestException">If access token cannot be granted.</exception>
         public async Task<AccessTokenResponse> GetOrRefreshTokenAsync(
             CancellationToken cancellationToken = default)
         {
@@ -173,9 +173,9 @@ namespace Cdm.Authentication.OAuth2
         public async Task<AccessTokenResponse> RefreshTokenAsync(CancellationToken cancellationToken = default)
         {
             if (accessTokenResponse == null)
-                throw new AccessTokenException(new AccessTokenError()
+                throw new AccessTokenRequestException(new AccessTokenRequestError()
                 {
-                    code = AccessTokenErrorCode.InvalidGrant,
+                    code = AccessTokenRequestErrorCode.InvalidGrant,
                     description = "Authentication required."
                 }, null);
 
@@ -193,13 +193,13 @@ namespace Cdm.Authentication.OAuth2
         {
             if (string.IsNullOrEmpty(refreshToken))
             {
-                var error = new AccessTokenError()
+                var error = new AccessTokenRequestError()
                 {
-                    code = AccessTokenErrorCode.InvalidGrant,
+                    code = AccessTokenRequestErrorCode.InvalidGrant,
                     description = "Refresh token does not exist."
                 };
 
-                throw new AccessTokenException(error, null);
+                throw new AccessTokenRequestException(error, null);
             }
 
             var parameters = JsonHelper.ToDictionary(new RefreshTokenRequest()
@@ -253,18 +253,18 @@ namespace Cdm.Authentication.OAuth2
                 return tokenResponse;
             }
 
-            AccessTokenError error = null;
+            AccessTokenRequestError error = null;
             try
             {
                 var errorJson = await response.Content.ReadAsStringAsync();
-                error = JsonConvert.DeserializeObject<AccessTokenError>(errorJson);
+                error = JsonConvert.DeserializeObject<AccessTokenRequestError>(errorJson);
             }
             catch (Exception)
             {
                 // ignored
             }
 
-            throw new AccessTokenException(error, response.StatusCode);
+            throw new AccessTokenRequestException(error, response.StatusCode);
         }
 
         public void Dispose()

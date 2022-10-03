@@ -7,13 +7,13 @@ namespace Cdm.Authentication.OAuth2
     /// http://tools.ietf.org/html/rfc6749#section-5.2.
     /// </summary>
     [DataContract]
-    public class AccessTokenError
+    public class AccessTokenRequestError
     {
         /// <summary>
         /// Gets or sets the error code as specified in http://tools.ietf.org/html/rfc6749#section-5.2.
         /// </summary>
         [DataMember(IsRequired = true, Name = "error")]
-        public AccessTokenErrorCode code { get; set; }
+        public AccessTokenRequestErrorCode code { get; set; }
 
         /// <summary>
         /// Gets or sets a human-readable text which provides additional information used to assist the client
