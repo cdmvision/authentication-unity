@@ -12,9 +12,6 @@
 /UserSettings/
 /UIElementsSchema/
 
-# Auth client configurations
-/Assets/Resources/
-
 ProjectSettings/boot.config
 
 
