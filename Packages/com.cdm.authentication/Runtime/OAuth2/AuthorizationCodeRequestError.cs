@@ -6,7 +6,7 @@ namespace Cdm.Authentication.OAuth2
     public class AuthorizationCodeRequestError
     {
         [DataMember(IsRequired = true, Name = "error")]
-        public AuthorizationCodeRequestErrorType code { get; set; }
+        public AuthorizationCodeRequestErrorCode code { get; set; }
 
         /// <summary>
         /// OPTIONAL. Human-readable ASCII [<a href="https://www.rfc-editor.org/rfc/rfc6749#ref-USASCII">USASCII</a>]
@@ -22,5 +22,12 @@ namespace Cdm.Authentication.OAuth2
         /// </summary>
         [DataMember(Name = "error_uri")]
         public string uri { get; set; }
+        
+        /// <summary>
+        /// REQUIRED if a "state" parameter was present in the client authorization request. The exact value received
+        /// from the client.
+        /// </summary>
+        [DataMember(Name = "state")]
+        public string state {  get;  set; }
     }
 }

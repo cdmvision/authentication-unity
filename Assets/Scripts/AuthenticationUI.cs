@@ -35,19 +35,25 @@ public class AuthenticationUI : UIBehaviour
         statusText.text = "";
         Application.logMessageReceived += OnLogMessageReceived;
 
-        if (!AuthConfigurationLoader.TryLoad(out var configuration))
-            return;
-
         iosBrowsers.SetActive(Application.platform == RuntimePlatform.IPhonePlayer);
-        
+
         _crossPlatformBrowser = new CrossPlatformBrowser();
         _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.WindowsEditor, new StandaloneBrowser());
         _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.WindowsPlayer, new StandaloneBrowser());
         _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.OSXEditor, new StandaloneBrowser());
         _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.OSXPlayer, new StandaloneBrowser());
-        _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.IPhonePlayer, new ASWebAuthenticationSessionBrowser());
+        _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.IPhonePlayer,
+            new ASWebAuthenticationSessionBrowser());
 
-        var auth = new GoogleAuth(configuration);
+        var configuration = new AuthorizationCodeFlow.Configuration()
+        {
+            clientId = AppAuth.ClientId,
+            clientSecret = AppAuth.ClientSecret,
+            redirectUri = AppAuth.RedirectUri,
+            scope = AppAuth.Scope
+        };
+        
+        var auth = new MockServerAuth(configuration, "http://localhost:8001");
 
         _authenticationSession = new AuthenticationSession(auth, _crossPlatformBrowser);
 
@@ -107,18 +113,36 @@ public class AuthenticationUI : UIBehaviour
             else if (wkWebViewAuthenticationSessionBrowserToggle.isOn)
             {
                 _crossPlatformBrowser.platformBrowsers.Add(
-                        RuntimePlatform.IPhonePlayer, new WKWebViewAuthenticationSessionBrowser());
+                    RuntimePlatform.IPhonePlayer, new WKWebViewAuthenticationSessionBrowser());
             }
 
             if (double.TryParse(loginTimeoutInput.text, out var value))
             {
                 _authenticationSession.loginTimeout = TimeSpan.FromSeconds(value);
             }
-            
-            var accessTokenResponse = await _authenticationSession.AuthenticateAsync(_cancellationTokenSource.Token);
 
-            Debug.Log(
-                $"Access token response:\n {JsonConvert.SerializeObject(accessTokenResponse, Formatting.Indented)}");
+            try
+            {
+                var accessTokenResponse =
+                    await _authenticationSession.AuthenticateAsync(_cancellationTokenSource.Token);
+
+                Debug.Log(
+                    $"Access token response:\n {JsonConvert.SerializeObject(accessTokenResponse, Formatting.Indented)}");
+            }
+            catch (AuthorizationCodeRequestException ex)
+            {
+                Debug.LogError($"{nameof(AuthorizationCodeRequestException)} " +
+                               $"error: {ex.error.code}, description: {ex.error.description}, uri: {ex.error.uri}");
+            }
+            catch (AccessTokenRequestException ex)
+            {
+                Debug.LogError($"{nameof(AccessTokenRequestException)} " +
+                               $"error: {ex.error.code}, description: {ex.error.description}, uri: {ex.error.uri}");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
         }
     }
 
@@ -129,10 +153,23 @@ public class AuthenticationUI : UIBehaviour
             _cancellationTokenSource?.Dispose();
             _cancellationTokenSource = new CancellationTokenSource();
 
-            var accessTokenResponse = await _authenticationSession.RefreshTokenAsync(_cancellationTokenSource.Token);
+            try
+            {
+                var accessTokenResponse =
+                    await _authenticationSession.RefreshTokenAsync(_cancellationTokenSource.Token);
 
-            Debug.Log(
-                $"Refresh token response:\n {JsonConvert.SerializeObject(accessTokenResponse, Formatting.Indented)}");
+                Debug.Log(
+                    $"Refresh token response:\n {JsonConvert.SerializeObject(accessTokenResponse, Formatting.Indented)}");
+            }
+            catch (AccessTokenRequestException ex)
+            {
+                Debug.LogError($"{nameof(AccessTokenRequestException)} " +
+                               $"error: {ex.error.code}, description: {ex.error.description}, uri: {ex.error.uri}");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
         }
     }
 

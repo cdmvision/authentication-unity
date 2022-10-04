@@ -75,7 +75,7 @@ namespace Cdm.Authentication.OAuth2
         /// </remarks>
         public bool IsExpired()
         {
-            return string.IsNullOrEmpty(accessToken) || expiresAt == null || expiresAt > DateTime.UtcNow;
+            return string.IsNullOrEmpty(accessToken) || expiresAt == null || expiresAt < DateTime.UtcNow;
         }
 
         /// <summary>

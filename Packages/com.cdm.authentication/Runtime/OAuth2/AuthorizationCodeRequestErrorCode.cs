@@ -1,12 +1,15 @@
 ﻿using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Cdm.Authentication.OAuth2
 {
     /// <summary>
     /// 
     /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     [DataContract]
-    public enum AuthorizationCodeRequestErrorType
+    public enum AuthorizationCodeRequestErrorCode
     {
         /// <summary>
         /// The request is missing a required parameter, includes an invalid parameter value, includes a parameter
