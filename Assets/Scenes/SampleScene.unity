@@ -1712,18 +1712,18 @@ MonoBehaviour:
   _serverUrl: http://localhost:8001/
   _authorizationCodeErrorEnabled: 0
   _authorizationCodeError: 1
-  _responses:
+  _accessTokenResponses:
   - username: ali
     accessTokenErrorEnabled: 0
     accessTokenError: 0
     accessTokenErrorOnRefreshEnabled: 0
     accessTokenErrorOnRefresh: 0
-  - username: veli
+  - username: can
     accessTokenErrorEnabled: 1
-    accessTokenError: 1
+    accessTokenError: 3
     accessTokenErrorOnRefreshEnabled: 0
     accessTokenErrorOnRefresh: 0
-  - username: deli
+  - username: efe
     accessTokenErrorEnabled: 0
     accessTokenError: 0
     accessTokenErrorOnRefreshEnabled: 1

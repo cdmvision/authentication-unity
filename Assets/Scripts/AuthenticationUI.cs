@@ -35,18 +35,24 @@ public class AuthenticationUI : UIBehaviour
         statusText.text = "";
         Application.logMessageReceived += OnLogMessageReceived;
 
-        if (!AuthConfigurationLoader.TryLoad(out var configuration))
-            return;
-
         iosBrowsers.SetActive(Application.platform == RuntimePlatform.IPhonePlayer);
-        
+
         _crossPlatformBrowser = new CrossPlatformBrowser();
         _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.WindowsEditor, new StandaloneBrowser());
         _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.WindowsPlayer, new StandaloneBrowser());
         _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.OSXEditor, new StandaloneBrowser());
         _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.OSXPlayer, new StandaloneBrowser());
-        _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.IPhonePlayer, new ASWebAuthenticationSessionBrowser());
+        _crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.IPhonePlayer,
+            new ASWebAuthenticationSessionBrowser());
 
+        var configuration = new AuthorizationCodeFlow.Configuration()
+        {
+            clientId = AppAuth.ClientId,
+            clientSecret = AppAuth.ClientSecret,
+            redirectUri = AppAuth.RedirectUri,
+            scope = AppAuth.Scope
+        };
+        
         var auth = new MockServerAuth(configuration, "http://localhost:8001");
 
         _authenticationSession = new AuthenticationSession(auth, _crossPlatformBrowser);
@@ -107,7 +113,7 @@ public class AuthenticationUI : UIBehaviour
             else if (wkWebViewAuthenticationSessionBrowserToggle.isOn)
             {
                 _crossPlatformBrowser.platformBrowsers.Add(
-                        RuntimePlatform.IPhonePlayer, new WKWebViewAuthenticationSessionBrowser());
+                    RuntimePlatform.IPhonePlayer, new WKWebViewAuthenticationSessionBrowser());
             }
 
             if (double.TryParse(loginTimeoutInput.text, out var value))
@@ -149,7 +155,8 @@ public class AuthenticationUI : UIBehaviour
 
             try
             {
-                var accessTokenResponse = await _authenticationSession.RefreshTokenAsync(_cancellationTokenSource.Token);
+                var accessTokenResponse =
+                    await _authenticationSession.RefreshTokenAsync(_cancellationTokenSource.Token);
 
                 Debug.Log(
                     $"Refresh token response:\n {JsonConvert.SerializeObject(accessTokenResponse, Formatting.Indented)}");

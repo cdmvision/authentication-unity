@@ -20,24 +20,21 @@ namespace Editor
             if (report.summary.platform != BuildTarget.iOS)
                 return;
             
-            if (AuthConfigurationLoader.TryLoad(out var configuration))
-            {
-                var plistPath = report.summary.outputPath + "/Info.plist";
-                var plist = new PlistDocument();
-                plist.ReadFromString(File.ReadAllText(plistPath));
-                
-                // Register ios URL scheme for external apps to launch this app.
-                var urlTypes = plist.root.CreateArray("CFBundleURLTypes");
-                var urlTypeDict = urlTypes.AddDict();
-                urlTypeDict.SetString("CFBundleURLName", "");
-                urlTypeDict.SetString("CFBundleTypeRole", "Editor");
+            var plistPath = report.summary.outputPath + "/Info.plist";
+            var plist = new PlistDocument();
+            plist.ReadFromString(File.ReadAllText(plistPath));
 
-                var urlSchemes = urlTypeDict.CreateArray("CFBundleURLSchemes");
-                urlSchemes.AddString(new Uri(configuration.redirectUri).Scheme);
+            // Register ios URL scheme for external apps to launch this app.
+            var urlTypes = plist.root.CreateArray("CFBundleURLTypes");
+            var urlTypeDict = urlTypes.AddDict();
+            urlTypeDict.SetString("CFBundleURLName", "");
+            urlTypeDict.SetString("CFBundleTypeRole", "Editor");
 
-                // Save all changes.
-                File.WriteAllText(plistPath, plist.WriteToString());
-            }
+            var urlSchemes = urlTypeDict.CreateArray("CFBundleURLSchemes");
+            urlSchemes.AddString(new Uri(MockAuthConfig.RedirectUri).Scheme);
+
+            // Save all changes.
+            File.WriteAllText(plistPath, plist.WriteToString());
 #endif
         }
     }
