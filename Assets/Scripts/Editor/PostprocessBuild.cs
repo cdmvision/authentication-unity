@@ -31,7 +31,7 @@ namespace Editor
             urlTypeDict.SetString("CFBundleTypeRole", "Editor");
 
             var urlSchemes = urlTypeDict.CreateArray("CFBundleURLSchemes");
-            urlSchemes.AddString(new Uri(MockAuthConfig.RedirectUri).Scheme);
+            urlSchemes.AddString(new Uri(AppAuth.RedirectUri).Scheme);
 
             // Save all changes.
             File.WriteAllText(plistPath, plist.WriteToString());
