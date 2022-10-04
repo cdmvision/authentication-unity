@@ -13,3 +13,48 @@
 ## Install via Unity Package Manager:
 * Add `"com.cdm.authentication": "https://github.com/cdmvision/authentication-unity.git#1.0.2"` to your project's package manifest file in dependencies section.
 * Or, `Package Manager > Add package from git URL...` and paste this URL: `https://github.com/cdmvision/authentication-unity.git#1.0.2`
+
+## Example usage
+
+You should create your client auth configuration:
+```csharp
+// Also you can use your own client configuration.
+var auth = new GoogleAuth()
+{
+  clientId = "...",
+  redirectUrl = "...",
+  scope = "openid email profile"
+};
+```
+
+Authentication session is created with auth configuration and a browser:
+```csharp
+using var authenticationSession = new AuthenticationSession(auth, new StandaloneBrowser());
+```
+
+Also you can use different browsers for each platform by using cross platform browser:
+```csharp
+var crossPlatformBrowser = new CrossPlatformBrowser();
+var crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.WindowsEditor, new StandaloneBrowser());
+var crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.WindowsPlayer, new StandaloneBrowser());
+var crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.OSXEditor, new StandaloneBrowser());
+var crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.OSXPlayer, new StandaloneBrowser());
+var crossPlatformBrowser.platformBrowsers.Add(RuntimePlatform.IPhonePlayer, new ASWebAuthenticationSessionBrowser());
+
+using var authenticationSession = new AuthenticationSession(auth, crossPlatformBrowser);
+
+// Opens a browser to log user in
+AccessTokenResponse accessTokenResponse = await authenticationSession.AuthenticateAsync();
+
+// Authentication header can be used to make authorized http calls.
+AuthenticationHeaderValue authenticationHeader = accessTokenResponse.GetAuthenticationHeader();
+
+// Gets the current acccess token, or refreshes if it is expired.
+accessTokenResponse = authenticationSession.GetOrRefreshTokenAsync();
+
+// Gets new access token by using the refresh token.
+AccessTokenResponse newAccessTokenResponse = await authenticationSession.RefreshTokenAsync();
+
+// Or you can get new access token with specified refresh token (i.e. stored on the local disk to prevent multiple sign-in for each app launch)
+newAccessTokenResponse = await authenticationSession.RefreshTokenAsync("my_refresh_token");
+```
