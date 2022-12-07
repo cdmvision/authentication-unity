@@ -50,7 +50,7 @@ AccessTokenResponse accessTokenResponse = await authenticationSession.Authentica
 AuthenticationHeaderValue authenticationHeader = accessTokenResponse.GetAuthenticationHeader();
 
 // Gets the current acccess token, or refreshes if it is expired.
-accessTokenResponse = authenticationSession.GetOrRefreshTokenAsync();
+accessTokenResponse = await authenticationSession.GetOrRefreshTokenAsync();
 
 // Gets new access token by using the refresh token.
 AccessTokenResponse newAccessTokenResponse = await authenticationSession.RefreshTokenAsync();
