@@ -1,9 +1,7 @@
 {
     "name": "Cdm.Authentication",
-    "rootNamespace": "",
-    "references": [
-        "GUID:b0cab6f8881a0f744a07ddbf40c42917"
-    ],
+    "rootNamespace": "Cdm.Authentication",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
