@@ -5,8 +5,8 @@ using UnityEngine;
 namespace Cdm.Authentication.Browser
 {
     /// <summary>
-    /// OAuth 2.0 verification browser that runs a local server and waits for a call with
-    /// the authorization verification code throught a custom scheme instead of a http listener
+    /// OAuth 2.0 verification browser that waits for a call with
+    /// the authorization verification code throught a custom scheme (aka protocol)
     /// </summary>
     public class CustomSchemeBrowser : IBrowser
     {
