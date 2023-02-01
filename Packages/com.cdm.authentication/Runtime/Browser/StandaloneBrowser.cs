@@ -35,6 +35,7 @@ namespace Cdm.Authentication.Browser
             try
             {
                 
+                redirectUrl = AddForwardSlashIfNecessary(redirectUrl);
                 httpListener.Prefixes.Add(redirectUrl);
                 httpListener.Start();
                 httpListener.BeginGetContext(IncomingHttpRequest, httpListener);
@@ -67,6 +68,21 @@ namespace Cdm.Authentication.Browser
 
             _taskCompletionSource.SetResult(
                 new BrowserResult(BrowserStatus.Success, httpRequest.Url.ToString()));
+        }
+
+        /// <summary>
+        /// Prefixes must end in a forward slash ("/")
+        /// </summary>
+        /// <see href="https://learn.microsoft.com/en-us/dotnet/api/system.net.httplistener?view=net-7.0#remarks" />
+        private string AddForwardSlashIfNecessary(string url)
+        {
+            char forwardSlash = '/';
+            if (!url.EndsWith(forwardSlash))
+            {
+                url += forwardSlash;
+            }
+
+            return url;
         }
     }
 }
