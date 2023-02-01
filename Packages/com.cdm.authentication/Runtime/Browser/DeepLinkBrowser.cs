@@ -6,9 +6,10 @@ namespace Cdm.Authentication.Browser
 {
     /// <summary>
     /// OAuth 2.0 verification browser that waits for a call with
-    /// the authorization verification code throught a custom scheme (aka protocol)
+    /// the authorization verification code through a custom scheme (aka protocol).
     /// </summary>
-    public class CustomSchemeBrowser : IBrowser
+    /// <see href="https://docs.unity3d.com/ScriptReference/Application-deepLinkActivated.html"/>
+    public class DeepLinkBrowser : IBrowser
     {
         private TaskCompletionSource<BrowserResult> _taskCompletionSource;
 
@@ -21,7 +22,7 @@ namespace Cdm.Authentication.Browser
                 _taskCompletionSource?.TrySetCanceled();
             });
 
-            Application.deepLinkActivated += onDeepLinkActivated;
+            Application.deepLinkActivated += OnDeepLinkActivated;
 
             try
             {
@@ -30,11 +31,11 @@ namespace Cdm.Authentication.Browser
             }
             finally
             {
-                Application.deepLinkActivated -= onDeepLinkActivated;
+                Application.deepLinkActivated -= OnDeepLinkActivated;
             }
         }
 
-        private void onDeepLinkActivated(string url)
+        private void OnDeepLinkActivated(string url)
         {
             _taskCompletionSource.SetResult(
                 new BrowserResult(BrowserStatus.Success, url));

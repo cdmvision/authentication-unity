@@ -4,6 +4,11 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2023-02-1
+### Changes
+- Redirect URL can be used without forward slash with `StandaloneBrowser`
+- Added `DeepLinkBrowser` through a custom scheme (aka protocol) for Android, iOS, or UWP
+
 ## [1.1.1] - 2022-12-16
 ### Changes
 - Added `csc.rsp` to fix `error CS0103: The name 'HttpUtility' does not exist in the current context` error
