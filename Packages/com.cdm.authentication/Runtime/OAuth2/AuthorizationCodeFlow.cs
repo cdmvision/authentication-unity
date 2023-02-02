@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization;
@@ -90,15 +91,21 @@ namespace Cdm.Authentication.OAuth2
             // Generate new state.
             state = Guid.NewGuid().ToString("D");
 
-            var parameters = JsonHelper.ToDictionary(new AuthorizationCodeRequest()
+            var parameters = GetAuthorizationUrlParameters();
+
+            return UrlBuilder.New(authorizationUrl).SetQueryParameters(parameters).ToString();
+        }
+
+
+        protected virtual Dictionary<string, string> GetAuthorizationUrlParameters()
+        {
+            return JsonHelper.ToDictionary(new AuthorizationCodeRequest()
             {
                 clientId = configuration.clientId,
                 redirectUri = configuration.redirectUri,
                 scope = configuration.scope,
                 state = state
             });
-
-            return UrlBuilder.New(authorizationUrl).SetQueryParameters(parameters).ToString();
         }
 
         /// <summary>
@@ -131,19 +138,24 @@ namespace Cdm.Authentication.OAuth2
             if (!string.IsNullOrEmpty(state) && state != authorizationResponse.state)
                 throw new SecurityException($"Invalid state got: {authorizationResponse.state}");
 
-            var parameters = JsonHelper.ToDictionary(new AccessTokenRequest()
+            var parameters = GetAccessTokenParameters(authorizationResponse.code);
+
+            Debug.Assert(parameters != null);
+
+            accessTokenResponse =
+                await GetAccessTokenInternalAsync(new FormUrlEncodedContent(parameters), cancellationToken);
+            return accessTokenResponse;
+        }
+
+        protected virtual Dictionary<string, string> GetAccessTokenParameters(string code)
+        {
+            return JsonHelper.ToDictionary(new AccessTokenRequest()
             {
-                code = authorizationResponse.code,
+                code = code,
                 clientId = configuration.clientId,
                 clientSecret = configuration.clientSecret,
                 redirectUri = configuration.redirectUri
             });
-
-            Debug.Assert(parameters != null);
-
-            accessTokenResponse = 
-                await GetAccessTokenInternalAsync(new FormUrlEncodedContent(parameters), cancellationToken);
-            return accessTokenResponse;
         }
 
         /// <summary>
