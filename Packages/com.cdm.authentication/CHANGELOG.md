@@ -4,6 +4,10 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] - 2023-02-26
+### Changes
+- Json serializable classes marked with `[Preserve]` attribute to prevent them from being stripped out (i.e. UWP platform)
+
 ## [1.1.2] - 2023-02-1
 ### Changes
 - Redirect URL can be used without forward slash with `StandaloneBrowser`
