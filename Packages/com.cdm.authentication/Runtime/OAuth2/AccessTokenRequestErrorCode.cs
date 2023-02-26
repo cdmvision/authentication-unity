@@ -1,6 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using UnityEngine.Scripting;
 
 namespace Cdm.Authentication.OAuth2
 {
@@ -10,6 +11,7 @@ namespace Cdm.Authentication.OAuth2
     /// </summary>
     [JsonConverter(typeof(StringEnumConverter))]
     [DataContract]
+    [Preserve]
     public enum AccessTokenRequestErrorCode
     {
         /// <summary>
@@ -17,6 +19,7 @@ namespace Cdm.Authentication.OAuth2
         /// (other than grant type), repeats a parameter, includes multiple credentials, utilizes more than
         /// one mechanism for authenticating the client, or is otherwise malformed.
         /// </summary>
+        [Preserve]
         [EnumMember(Value = "invalid_request")]
         InvalidRequest,
 
@@ -28,6 +31,7 @@ namespace Cdm.Authentication.OAuth2
         /// an HTTP 401 (Unauthorized) status code and include the "WWW-Authenticate" response header field matching
         /// the authentication scheme used by the client.
         /// </summary>
+        [Preserve]
         [EnumMember(Value = "invalid_client")]
         InvalidClient,
 
@@ -36,24 +40,28 @@ namespace Cdm.Authentication.OAuth2
         /// is invalid, expired, revoked, does not match the redirection URI used in the authorization request,
         /// or was issued to another client.
         /// </summary>
+        [Preserve]
         [EnumMember(Value = "invalid_grant")]
         InvalidGrant,
 
         /// <summary>
         /// The authenticated client is not authorized to use this authorization grant type.
         /// </summary>
+        [Preserve]
         [EnumMember(Value = "unauthorized_client")]
         UnauthorizedClient,
 
         /// <summary>
         /// The authorization grant type is not supported by the authorization server.
         /// </summary>
+        [Preserve]
         [EnumMember(Value = "unsupported_grant_type")]
         UnsupportedGrantType,
 
         /// <summary>
         /// The requested scope is invalid, unknown, malformed, or exceeds the scope granted by the resource owner.
         /// </summary>
+        [Preserve]
         [EnumMember(Value = "invalid_scope")]
         InvalidScope,
     }

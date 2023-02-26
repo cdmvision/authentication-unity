@@ -29,7 +29,7 @@ namespace Cdm.Authentication.Browser
             _taskCompletionSource = new TaskCompletionSource<BrowserResult>();
             
             // Discard URL parameters. They are not valid for iOS URL Scheme.
-            redirectUrl = redirectUrl.Split(':', StringSplitOptions.RemoveEmptyEntries)[0];
+            redirectUrl = redirectUrl.Split(new char[] {':'}, StringSplitOptions.RemoveEmptyEntries)[0];
             
             using var authenticationSession =
                 new ASWebAuthenticationSession(loginUrl, redirectUrl, AuthenticationSessionCompletionHandler);

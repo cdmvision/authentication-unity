@@ -76,7 +76,7 @@ namespace Cdm.Authentication.Browser
         /// <see href="https://learn.microsoft.com/en-us/dotnet/api/system.net.httplistener?view=net-7.0#remarks" />
         private string AddForwardSlashIfNecessary(string url)
         {
-            char forwardSlash = '/';
+            string forwardSlash = "/";
             if (!url.EndsWith(forwardSlash))
             {
                 url += forwardSlash;
