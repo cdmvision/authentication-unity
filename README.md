@@ -1,6 +1,7 @@
 # Authentication Package for Unity
 - OAuth2
   - Authorization code flow (https://www.rfc-editor.org/rfc/rfc6749#section-4.1)
+  - Authorization code flow with PKCE (Proof Key for Code Exchange) (https://www.rfc-editor.org/rfc/rfc7636)
 - Built-in clients
   - GitHub
   - Google
@@ -12,8 +13,8 @@
   - WKWebView (iOS) (https://developer.apple.com/documentation/webkit/wkwebview)
 
 ## Install via Unity Package Manager:
-* Add `"com.cdm.authentication": "https://github.com/cdmvision/authentication-unity.git#1.1.3"` to your project's package manifest file in dependencies section.
-* Or, `Package Manager > Add package from git URL...` and paste this URL: `https://github.com/cdmvision/authentication-unity.git#1.1.3`
+* Add `"com.cdm.authentication": "https://github.com/cdmvision/authentication-unity.git#1.2.0"` to your project's package manifest file in dependencies section.
+* Or, `Package Manager > Add package from git URL...` and paste this URL: `https://github.com/cdmvision/authentication-unity.git#1.2.0`
 
 ## Example usage
 
