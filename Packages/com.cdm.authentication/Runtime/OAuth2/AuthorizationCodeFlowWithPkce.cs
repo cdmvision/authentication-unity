@@ -6,14 +6,20 @@ using System.Text;
 namespace Cdm.Authentication.OAuth2
 {
     /// <summary>
-    /// OAuth 2.0 'Authorization Code' flow with PCKE
+    /// OAuth 2.0 'Authorization Code' flow with PKCE (Proof Key for Code Exchange).
+    /// 
+    /// PKCE (RFC 7636) is an extension to the Authorization Code flow to prevent CSRF and authorization code injection
+    /// attacks. PKCE is not a form of client authentication, and PKCE is not a replacement for a client secret or
+    /// other client authentication. PKCE is recommended even if a client is using a client secret or other form
+    /// of client authentication like private_key_jwt.
+    /// 
     /// https://www.rfc-editor.org/rfc/rfc7636
     /// </summary>
-    public abstract class AuthorizationCodeFlowWithPKCE : AuthorizationCodeFlow
+    public abstract class AuthorizationCodeFlowWithPkce : AuthorizationCodeFlow
     {
-        private string codeVerifier;
+        private string _codeVerifier;
 
-        protected AuthorizationCodeFlowWithPKCE(Configuration configuration) : base(configuration)
+        protected AuthorizationCodeFlowWithPkce(Configuration configuration) : base(configuration)
         {
         }
 
@@ -21,8 +27,8 @@ namespace Cdm.Authentication.OAuth2
         {
             var parameters = base.GetAuthorizationUrlParameters();
 
-            codeVerifier = GenerateRandomDataBase64url(32);
-            string codeChallenge = Base64UrlEncodeNoPadding(Sha256Ascii(codeVerifier));
+            _codeVerifier = GenerateRandomDataBase64url(32);
+            var codeChallenge = Base64UrlEncodeNoPadding(Sha256Ascii(_codeVerifier));
 
             parameters.Add("code_challenge", codeChallenge);
             parameters.Add("code_challenge_method", "S256");
@@ -33,14 +39,14 @@ namespace Cdm.Authentication.OAuth2
         protected override Dictionary<string, string> GetAccessTokenParameters(string code)
         {
             var parameters = base.GetAccessTokenParameters(code);
-            parameters.Add("code_verifier", codeVerifier);
+            parameters.Add("code_verifier", _codeVerifier);
             return parameters;
         }
 
         private static string GenerateRandomDataBase64url(uint length)
         {
-            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-            byte[] bytes = new byte[length];
+            var rng = new RNGCryptoServiceProvider();
+            var bytes = new byte[length];
             rng.GetBytes(bytes);
             return Base64UrlEncodeNoPadding(bytes);
         }
@@ -52,7 +58,7 @@ namespace Cdm.Authentication.OAuth2
         /// <returns></returns>
         private static string Base64UrlEncodeNoPadding(byte[] buffer)
         {
-            string base64 = Convert.ToBase64String(buffer);
+            var base64 = Convert.ToBase64String(buffer);
 
             // Converts base64 to base64url.
             base64 = base64.Replace("+", "-");
@@ -68,7 +74,7 @@ namespace Cdm.Authentication.OAuth2
         /// </summary>
         private static byte[] Sha256Ascii(string text)
         {
-            byte[] bytes = Encoding.ASCII.GetBytes(text);
+            var bytes = Encoding.ASCII.GetBytes(text);
             using (SHA256Managed sha256 = new SHA256Managed())
             {
                 return sha256.ComputeHash(bytes);
