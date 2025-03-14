@@ -19,9 +19,6 @@ namespace Cdm.Authentication.Browser
 
             _taskCompletionSource = new TaskCompletionSource<BrowserResult>();
 
-            // Discard URL parameters. They are not valid for iOS URL Scheme.
-            redirectUrl = redirectUrl.Split(new char[] {':'}, StringSplitOptions.RemoveEmptyEntries)[0];
-
             using var authenticationSession =
                 new WKWebViewAuthenticationSession(loginUrl, redirectUrl, AuthenticationSessionCompletionHandler);
 

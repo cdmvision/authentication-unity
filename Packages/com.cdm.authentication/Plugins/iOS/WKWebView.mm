@@ -21,13 +21,13 @@ typedef void (*WKWebViewAuthenticationSessionCompletionCallback)(void* sessionPt
 
 WKWebView* _webView;
 NSURLRequest* _request;
-NSString* _callbackUrlScheme;
+NSString* _callbackUrl;
 BOOL _isCompletedSuccessfully;
 BOOL _isDisposed;
 BOOL _isViewDisappeared;
 WKWebViewAuthenticationSessionCompletionCallback _completionCallback;
 
-- (instancetype)initWithURL:(NSURLRequest *)request callbackURLScheme:(nullable NSString *)callbackURLScheme completionCallback:(WKWebViewAuthenticationSessionCompletionCallback)completionCallback
+- (instancetype)initWithURL:(NSURLRequest *)request callbackURL:(nullable NSString *)callbackURL completionCallback:(WKWebViewAuthenticationSessionCompletionCallback)completionCallback
 {
     self = [super init];
     if(!self) return nil;
@@ -37,7 +37,7 @@ WKWebViewAuthenticationSessionCompletionCallback _completionCallback;
     _isDisposed = false;
     _isViewDisappeared = false;
     _request = request;
-    _callbackUrlScheme = callbackURLScheme;
+    _callbackUrl = callbackURL;
     _completionCallback = completionCallback;
     return self;
 }
@@ -120,14 +120,31 @@ WKWebViewAuthenticationSessionCompletionCallback _completionCallback;
 }
 
 -(BOOL)matchesCallbackUrl:(NSURLComponents*)urlComponents
-{
-    if (_callbackUrlScheme != nil and urlComponents != nil)
+{   
+    if (_callbackUrl != nil and urlComponents != nil)
     {
-        return [[urlComponents scheme] isEqualToString:_callbackUrlScheme];
+        NSURLComponents* callbackUrlComponents = [NSURLComponents componentsWithString:_callbackUrl];
+        
+        bool schemeSame = [self areStringsEqual:[urlComponents scheme] with:[callbackUrlComponents scheme]];
+        bool hostSame = [self areStringsEqual:[urlComponents host] with:[callbackUrlComponents host]];
+        bool pathSame = [self areStringsEqual:[urlComponents path] with:[callbackUrlComponents path]];
+
+        return schemeSame && hostSame && pathSame;
     }
     
     return false;
 }
+
+- (BOOL)areStringsEqual:(NSString *)string1 with:(NSString *)string2 {
+    if (string1 == nil && string2 == nil) {
+        return YES;
+    } else if ((string1 == nil && string2 != nil) || (string1 != nil && string2 == nil)) {
+        return NO;
+    } else {
+        return [string1 isEqualToString:string2];
+    }
+}
+
 
 -(void)cancelButtonClicked:(UIButton*)sender
 {
@@ -218,15 +235,15 @@ WKWebViewAuthenticationSessionCompletionCallback _completionCallback;
 
 extern "C"
 {
-    WKWebViewAuthenticationSession* Cdm_Auth_WKWebViewAuthenticationSession_Init(const char* urlStr, const char* urlScheme,
+    WKWebViewAuthenticationSession* Cdm_Auth_WKWebViewAuthenticationSession_Init(const char* urlStr, const char* callbackUrl,
         WKWebViewAuthenticationSessionCompletionCallback completionCallback)
     {
-        //NSLog(@"[WKWebViewAuthenticationSession:Init] [url:%s] [scheme:%s]", urlStr, urlScheme);
+        //NSLog(@"[WKWebViewAuthenticationSession:Init] [url:%s] [scheme:%s]", urlStr, callbackUrl);
         
         NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString: toString(urlStr)]];
         
         WKWebViewAuthenticationSession* session = 
-            [[WKWebViewAuthenticationSession alloc] initWithURL:request callbackURLScheme:toString(urlScheme) completionCallback:completionCallback];
+            [[WKWebViewAuthenticationSession alloc] initWithURL:request callbackURL:toString(callbackUrl) completionCallback:completionCallback];
         
         return session;
     }

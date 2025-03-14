@@ -15,11 +15,11 @@ namespace Cdm.Authentication.Browser
 
         private IntPtr _sessionPtr;
 
-        public WKWebViewAuthenticationSession(string url, string callbackUrlScheme,
+        public WKWebViewAuthenticationSession(string url, string callbackUrl,
             WKWebViewAuthenticationSessionCompletionHandler completionHandler)
         {
             _sessionPtr = Cdm_Auth_WKWebViewAuthenticationSession_Init(
-                url, callbackUrlScheme, OnAuthenticationSessionCompleted);
+                url, callbackUrl, OnAuthenticationSessionCompleted);
 
             CompletionCallbacks.Add(_sessionPtr, completionHandler);
         }
@@ -45,7 +45,7 @@ namespace Cdm.Authentication.Browser
         private const string DllName = "__Internal";
         
         [DllImport(DllName)]
-        private static extern IntPtr Cdm_Auth_WKWebViewAuthenticationSession_Init(string url, string callbackUrlScheme,
+        private static extern IntPtr Cdm_Auth_WKWebViewAuthenticationSession_Init(string url, string callbackUrl,
             AuthenticationSessionCompletedCallback completionHandler);
         
         [DllImport(DllName)]
@@ -59,7 +59,7 @@ namespace Cdm.Authentication.Browser
 #else
         private const string NotSupportedMsg = "Only iOS platform is supported.";
 
-        private static IntPtr Cdm_Auth_WKWebViewAuthenticationSession_Init(string url, string callbackUrlScheme,
+        private static IntPtr Cdm_Auth_WKWebViewAuthenticationSession_Init(string url, string callbackUrl,
             AuthenticationSessionCompletedCallback completionHandler)
         {
             throw new NotImplementedException(NotSupportedMsg);
