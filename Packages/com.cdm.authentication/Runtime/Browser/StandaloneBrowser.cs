@@ -53,6 +53,7 @@ namespace Cdm.Authentication.Browser
         /// </param>
         /// <param name="cancellationToken">Ends the wait with a <see cref="TaskCanceledException"/>.</param>
         /// <exception cref="ArgumentNullException">A URL is null or empty.</exception>
+        /// <exception cref="UriFormatException"><paramref name="redirectUrl"/> is not a valid URL.</exception>
         /// <exception cref="ArgumentException"><paramref name="redirectUrl"/> is not http on a loopback host.</exception>
         public async Task<BrowserResult> StartAsync(
             string loginUrl, string redirectUrl, CancellationToken cancellationToken = default)

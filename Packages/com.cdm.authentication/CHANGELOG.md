@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - `StandaloneBrowser` ends the wait only on a GET of the redirect URL's path. 1.2.0 ended it on the first request of any method under the prefix, so a favicon request could end a sign-in; now any other request is answered 404 and the wait goes on.
-- `StandaloneBrowser` requires an http redirect URL on a loopback host (RFC 8252, section 7.3) and throws `ArgumentException` otherwise. 1.2.0 tried to listen on any address it was given, which failed with a `SocketException` for an address that is not this machine's.
+- `StandaloneBrowser` requires an http redirect URL on a loopback host, such as `127.0.0.1` or `localhost` (RFC 8252, section 7.3), and throws `ArgumentException` otherwise. 1.2.0 listened on any address it was given: a redirect on this machine's own network address or host name worked there and is now refused, and an address that is not this machine's failed with a `SocketException`.
 - `StandaloneBrowser` listens on the redirect URL's host and port, and answers the browser off the main thread, so the page also loads while the application does not run in the background.
 
 ### Fixed
