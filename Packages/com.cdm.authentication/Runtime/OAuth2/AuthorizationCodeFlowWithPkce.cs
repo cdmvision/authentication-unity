@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Cdm.Authentication.OAuth2
 {
@@ -27,11 +24,10 @@ namespace Cdm.Authentication.OAuth2
         {
             var parameters = base.GetAuthorizationUrlParameters();
 
-            _codeVerifier = GenerateRandomDataBase64url(32);
-            var codeChallenge = Base64UrlEncodeNoPadding(Sha256Ascii(_codeVerifier));
+            _codeVerifier = Pkce.CreateCodeVerifier();
 
-            parameters.Add("code_challenge", codeChallenge);
-            parameters.Add("code_challenge_method", "S256");
+            parameters.Add("code_challenge", Pkce.CreateCodeChallenge(_codeVerifier));
+            parameters.Add("code_challenge_method", Pkce.ChallengeMethod);
 
             return parameters;
         }
@@ -41,44 +37,6 @@ namespace Cdm.Authentication.OAuth2
             var parameters = base.GetAccessTokenParameters(code);
             parameters.Add("code_verifier", _codeVerifier);
             return parameters;
-        }
-
-        private static string GenerateRandomDataBase64url(uint length)
-        {
-            var rng = new RNGCryptoServiceProvider();
-            var bytes = new byte[length];
-            rng.GetBytes(bytes);
-            return Base64UrlEncodeNoPadding(bytes);
-        }
-
-        /// <summary>
-        /// Base64url no-padding encodes the given input buffer.
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <returns></returns>
-        private static string Base64UrlEncodeNoPadding(byte[] buffer)
-        {
-            var base64 = Convert.ToBase64String(buffer);
-
-            // Converts base64 to base64url.
-            base64 = base64.Replace("+", "-");
-            base64 = base64.Replace("/", "_");
-            // Strips padding.
-            base64 = base64.Replace("=", "");
-
-            return base64;
-        }
-
-        /// <summary>
-        /// Returns the SHA256 hash of the input string, which is assumed to be ASCII.
-        /// </summary>
-        private static byte[] Sha256Ascii(string text)
-        {
-            var bytes = Encoding.ASCII.GetBytes(text);
-            using (SHA256Managed sha256 = new SHA256Managed())
-            {
-                return sha256.ComputeHash(bytes);
-            }
         }
     }
 }
