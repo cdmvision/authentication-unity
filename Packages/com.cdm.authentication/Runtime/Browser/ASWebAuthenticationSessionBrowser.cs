@@ -6,8 +6,6 @@ namespace Cdm.Authentication.Browser
 {
     public class ASWebAuthenticationSessionBrowser : IBrowser
     {
-        private TaskCompletionSource<BrowserResult> _taskCompletionSource;
-
         /// <summary>
         /// Indicates whether the session should ask the browser for a private authentication
         /// session.
@@ -26,53 +24,60 @@ namespace Cdm.Authentication.Browser
             if (string.IsNullOrEmpty(redirectUrl))
                 throw new ArgumentNullException(nameof(redirectUrl));
             
-            _taskCompletionSource = new TaskCompletionSource<BrowserResult>();
-            
+            if (cancellationToken.IsCancellationRequested)
+                return await Task.FromCanceled<BrowserResult>(cancellationToken);
+
+            // One result per call: a session that answers late cannot complete a later call's result. The awaiting
+            // code resumes outside the native completion handler, never inline inside it.
+            var completion =
+                new TaskCompletionSource<BrowserResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+
             // Discard URL parameters. They are not valid for iOS URL Scheme.
             redirectUrl = redirectUrl.Split(new char[] {':'}, StringSplitOptions.RemoveEmptyEntries)[0];
-            
-            using var authenticationSession =
-                new ASWebAuthenticationSession(loginUrl, redirectUrl, AuthenticationSessionCompletionHandler);
+
+            using var authenticationSession = new ASWebAuthenticationSession(loginUrl, redirectUrl,
+                (callbackUrl, error) => Complete(completion, callbackUrl, error));
             authenticationSession.prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession;
-            
-            cancellationToken.Register(() =>
-            {
-                _taskCompletionSource?.TrySetCanceled();
-            });
+
+            using var registration = cancellationToken.Register(() => completion.TrySetCanceled());
 
             try
             {
                 if (!authenticationSession.Start())
                 {
-                    _taskCompletionSource.SetResult(
+                    completion.TrySetResult(
                         new BrowserResult(BrowserStatus.UnknownError, "Browser could not be started."));
                 }
 
-                return await _taskCompletionSource.Task;
+                return await completion.Task;
             }
             catch (TaskCanceledException)
             {
-                // In case of timeout cancellation.
+                // In case of timeout cancellation. The session then reports CanceledLogin to a result that is
+                // already cancelled, which Complete ignores.
                 authenticationSession?.Cancel();
                 throw;
             }
         }
 
-        private void AuthenticationSessionCompletionHandler(string callbackUrl, ASWebAuthenticationSessionError error)
+        // Called from native code: TrySetResult, because a session that answers after a timeout or a cancel must
+        // not throw here. An exception escaping a native callback ends an IL2CPP app.
+        private static void Complete(TaskCompletionSource<BrowserResult> completion, string callbackUrl,
+            ASWebAuthenticationSessionError error)
         {
             if (error.code == ASWebAuthenticationSessionErrorCode.None)
             {
-                _taskCompletionSource.SetResult(
-                    new BrowserResult(BrowserStatus.Success, callbackUrl));   
+                completion.TrySetResult(
+                    new BrowserResult(BrowserStatus.Success, callbackUrl));
             }
             else if (error.code == ASWebAuthenticationSessionErrorCode.CanceledLogin)
             {
-                _taskCompletionSource.SetResult(
+                completion.TrySetResult(
                     new BrowserResult(BrowserStatus.UserCanceled, callbackUrl, error.message));
             }
             else
             {
-                _taskCompletionSource.SetResult(
+                completion.TrySetResult(
                     new BrowserResult(BrowserStatus.UnknownError, callbackUrl, error.message));
             }
         }

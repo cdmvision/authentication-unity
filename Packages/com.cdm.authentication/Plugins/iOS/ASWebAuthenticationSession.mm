@@ -39,6 +39,11 @@ typedef void (*ASWebAuthenticationSessionCompletionCallback)(void* sessionPtr, c
 - (nonnull ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(nonnull ASWebAuthenticationSession *)session
 {
     #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __TV_OS_VERSION_MAX_ALLOWED >= 130000
+        // Unity's own view's window first. Under the UIScene lifecycle the window belongs to the scene, and the
+        // app delegate's window may not be set.
+        UIWindow* window = UnityGetGLViewController().view.window;
+        if (window != nil)
+            return window;
         return [[[UIApplication sharedApplication] delegate] window];
     #elif __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
         return [[NSApplication sharedApplication] mainWindow];

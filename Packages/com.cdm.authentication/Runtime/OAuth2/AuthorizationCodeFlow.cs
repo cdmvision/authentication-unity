@@ -124,8 +124,7 @@ namespace Cdm.Authentication.OAuth2
         public virtual async Task<AccessTokenResponse> ExchangeCodeForAccessTokenAsync(string redirectUrl,
             CancellationToken cancellationToken = default)
         {
-            var authorizationResponseUri = new Uri(redirectUrl);
-            var query = HttpUtility.ParseQueryString(authorizationResponseUri.Query);
+            var query = AuthorizationRedirect.Parse(redirectUrl).query;
 
             // Is there any error?
             if (JsonHelper.TryGetFromNameValueCollection<AuthorizationCodeRequestError>(query, out var authorizationError))
