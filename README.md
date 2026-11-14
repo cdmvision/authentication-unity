@@ -60,3 +60,32 @@ AccessTokenResponse newAccessTokenResponse = await authenticationSession.Refresh
 // Or you can get new access token with specified refresh token (i.e. stored on the local disk to prevent multiple sign-in for each app launch)
 newAccessTokenResponse = await authenticationSession.RefreshTokenAsync("my_refresh_token");
 ```
+
+## Browsers
+
+`StandaloneBrowser` (desktops) opens the sign-in page with `Application.OpenURL` and listens on the loopback address for the redirect (RFC 8252, section 7.3). The redirect URL has to be `http` on a loopback host, for example `http://127.0.0.1:{port}/callback`. Only a GET of its path ends the wait. `GetAvailableLoopbackPort()` gives a free port, `openUrl` replaces the action that opens the page, and `closePageResponse` is the page the browser shows at the end.
+
+`ASWebAuthenticationSessionBrowser` (iOS) shows Apple's sign-in sheet and returns the redirect to the app's own scheme, for example `com.example.app:/callback`. Set `prefersEphemeralWebBrowserSession` to keep the sheet from sharing Safari's cookies.
+
+## Running the flow yourself
+
+When the token request is not the standard one, run the browser part with `Pkce` and `AuthorizationRedirect`, and send the code and verifier to your own endpoint:
+```csharp
+var codeVerifier = Pkce.CreateCodeVerifier();
+var state = Pkce.CreateState();
+var loginUrl = $"https://server.example/authorize?redirect_uri={Uri.EscapeDataString(redirectUrl)}" +
+               $"&code_challenge={Pkce.CreateCodeChallenge(codeVerifier)}" +
+               $"&code_challenge_method={Pkce.ChallengeMethod}&state={state}";
+
+var result = await browser.StartAsync(loginUrl, redirectUrl, cancellationToken);
+if (result.status != BrowserStatus.Success)
+    return;
+
+var redirect = AuthorizationRedirect.Parse(result.redirectUrl);
+if (!redirect.HasState(state))
+    throw new SecurityException("The redirect does not belong to this sign-in.");
+if (redirect.error != null)
+    throw new Exception($"Sign-in refused: {redirect.error}");
+
+// Exchange redirect.code and codeVerifier for tokens at your server.
+```
